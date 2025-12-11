@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import MarkdownIt from 'markdown-it'
+import Prism from '../lib/prism-config'
 
 // 建立 markdown-it 實例（只建立一次）
 const md = new MarkdownIt({
@@ -7,6 +8,19 @@ const md = new MarkdownIt({
   linkify: true, // 自動將 URL 轉換為連結
   typographer: true, // 啟用智慧引號等排版功能
   breaks: true, // 將換行符轉換為 <br>
+  highlight: (str, lang) => {
+    // 使用 Prism.js 進行語法高亮
+    if (lang && Prism.languages[lang]) {
+      try {
+        const highlighted = Prism.highlight(str, Prism.languages[lang], lang)
+        return `<pre class="language-${lang}"><code class="language-${lang}">${highlighted}</code></pre>`
+      } catch (error) {
+        console.error('Prism highlight error:', error)
+      }
+    }
+    // 如果語言不支援，返回純文字
+    return `<pre class="language-${lang || 'text'}"><code class="language-${lang || 'text'}">${md.utils.escapeHtml(str)}</code></pre>`
+  },
 })
 
 /**

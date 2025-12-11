@@ -19,3 +19,38 @@ body {
   height: 100%;
   width: 100%;
 }
+
+/* Prism.js 程式碼區塊樣式優化 */
+.prose pre {
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.prose pre code {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* 確保行內程式碼樣式 */
+.prose code {
+  font-weight: 400;
+}
+
+/* 優化程式碼區塊內的滾動條 */
+.prose pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.prose pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.prose pre::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.prose pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
