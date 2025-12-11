@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useMarkdown } from './hooks/useMarkdown';
 
 const App: React.FC = () => {
-  const [content, setContent] = useState<string>('# Hello MacDown\n\nStart typing...');
+  const [content, setContent] = useState<string>('# Hello MacDown\n\nThis is a **Markdown** editor for Windows.\n\n## Features\n\n- Live preview\n- Syntax highlighting (coming soon)\n- File management (coming soon)\n\n### Try it out!\n\nYou can write:\n\n1. Numbered lists\n2. **Bold** and *italic* text\n3. `code snippets`\n\n```javascript\nfunction hello() {\n  console.log("Hello, MacDown!");\n}\n```\n\n> This is a blockquote\n\n[Links work too!](https://github.com)');
+
+  const html = useMarkdown(content);
 
   return (
     <div className="flex h-screen w-full flex-col bg-white text-slate-900">
@@ -19,9 +22,10 @@ const App: React.FC = () => {
           />
         </div>
         <div className="flex-1 overflow-auto bg-slate-50 p-8">
-          <div className="whitespace-pre-wrap font-sans text-base leading-relaxed text-slate-800">
-            {content}
-          </div>
+          <div
+            className="prose prose-slate max-w-none"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
         </div>
       </div>
     </div>
