@@ -21,7 +21,7 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 let win: BrowserWindow | null = null;
-const url = 'http://localhost:5173';
+const url = 'http://localhost:5174';
 const indexHtml = join(process.env.DIST, 'index.html');
 
 async function createWindow() {
