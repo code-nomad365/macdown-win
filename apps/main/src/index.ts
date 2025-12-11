@@ -3,6 +3,7 @@ import { release } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { registerFileHandlers } from './ipc/file-handler.js';
+import { registerExportHandlers } from './ipc/export-handler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -54,6 +55,7 @@ async function createWindow() {
 app.whenReady().then(() => {
   // 註冊 IPC handlers
   registerFileHandlers();
+  registerExportHandlers();
 
   // 建立選單
   createMenu();
@@ -111,6 +113,25 @@ function createMenu() {
           click: () => {
             if (win) {
               win.webContents.send('menu:saveFileAs');
+            }
+          },
+        },
+        { type: 'separator' },
+        {
+          label: 'Export as HTML...',
+          accelerator: 'CmdOrCtrl+Shift+H',
+          click: () => {
+            if (win) {
+              win.webContents.send('menu:exportHTML');
+            }
+          },
+        },
+        {
+          label: 'Export as PDF...',
+          accelerator: 'CmdOrCtrl+Shift+P',
+          click: () => {
+            if (win) {
+              win.webContents.send('menu:exportPDF');
             }
           },
         },

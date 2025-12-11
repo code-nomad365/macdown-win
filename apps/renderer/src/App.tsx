@@ -81,6 +81,34 @@ const App: React.FC = () => {
     }
   };
 
+  const handleExportHTML = async () => {
+    if (!window.electronAPI) return;
+
+    try {
+      const result = await window.electronAPI.exportHTML(html, fileName || 'Untitled');
+      if (result) {
+        alert(`HTML 已匯出至：${result.filePath}`);
+      }
+    } catch (error) {
+      console.error('Failed to export HTML:', error);
+      alert('Failed to export HTML');
+    }
+  };
+
+  const handleExportPDF = async () => {
+    if (!window.electronAPI) return;
+
+    try {
+      const result = await window.electronAPI.exportPDF(html, fileName || 'Untitled');
+      if (result) {
+        alert(`PDF 已匯出至：${result.filePath}`);
+      }
+    } catch (error) {
+      console.error('Failed to export PDF:', error);
+      alert('Failed to export PDF');
+    }
+  };
+
   // 監聽選單快捷鍵事件
   useEffect(() => {
     if (!window.electronAPI) return;
@@ -88,13 +116,17 @@ const App: React.FC = () => {
     const removeOpenListener = window.electronAPI.onOpenFile(handleOpenFile);
     const removeSaveListener = window.electronAPI.onSaveFile(handleSaveFile);
     const removeSaveAsListener = window.electronAPI.onSaveFileAs(handleSaveFileAs);
+    const removeExportHTMLListener = window.electronAPI.onExportHTML(handleExportHTML);
+    const removeExportPDFListener = window.electronAPI.onExportPDF(handleExportPDF);
 
     return () => {
       removeOpenListener();
       removeSaveListener();
       removeSaveAsListener();
+      removeExportHTMLListener();
+      removeExportPDFListener();
     };
-  }, [content]);
+  }, [content, html, fileName]);
 
   // 處理關閉視窗前的警告
   useEffect(() => {

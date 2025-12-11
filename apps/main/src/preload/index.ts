@@ -7,6 +7,10 @@ const api = {
   saveFile: (content: string) => ipcRenderer.invoke('file:save', content),
   saveFileAs: (content: string) => ipcRenderer.invoke('file:saveAs', content),
 
+  // 匯出操作
+  exportHTML: (html: string, title: string) => ipcRenderer.invoke('export:html', html, title),
+  exportPDF: (html: string, title: string) => ipcRenderer.invoke('export:pdf', html, title),
+
   // 監聽快捷鍵事件
   onOpenFile: (callback: () => void) => {
     ipcRenderer.on('menu:openFile', callback)
@@ -19,6 +23,14 @@ const api = {
   onSaveFileAs: (callback: () => void) => {
     ipcRenderer.on('menu:saveFileAs', callback)
     return () => ipcRenderer.removeListener('menu:saveFileAs', callback)
+  },
+  onExportHTML: (callback: () => void) => {
+    ipcRenderer.on('menu:exportHTML', callback)
+    return () => ipcRenderer.removeListener('menu:exportHTML', callback)
+  },
+  onExportPDF: (callback: () => void) => {
+    ipcRenderer.on('menu:exportPDF', callback)
+    return () => ipcRenderer.removeListener('menu:exportPDF', callback)
   },
 }
 
