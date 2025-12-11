@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { EditorState } from '@codemirror/state';
+import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLine } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { markdown } from '@codemirror/lang-markdown';
@@ -11,11 +11,41 @@ import { oneDark } from '@codemirror/theme-one-dark';
 interface CodeMirrorEditorProps {
   value: string;
   onChange: (value: string) => void;
+  theme?: 'light' | 'dark';
 }
 
-const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ value, onChange }) => {
+// 淺色主題配置
+const lightTheme = EditorView.theme({
+  '&': {
+    backgroundColor: '#ffffff',
+    color: '#24292e',
+  },
+  '.cm-content': {
+    caretColor: '#24292e',
+  },
+  '.cm-cursor, .cm-dropCursor': {
+    borderLeftColor: '#24292e',
+  },
+  '&.cm-focused .cm-selectionBackground, ::selection': {
+    backgroundColor: '#d7d4f0',
+  },
+  '.cm-activeLine': {
+    backgroundColor: '#f6f8fa',
+  },
+  '.cm-gutters': {
+    backgroundColor: '#f6f8fa',
+    color: '#6e7781',
+    border: 'none',
+  },
+  '.cm-activeLineGutter': {
+    backgroundColor: '#e8eaed',
+  },
+}, { dark: false });
+
+const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ value, onChange, theme = 'dark' }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
+  const themeCompartment = useRef(new Compartment());
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -30,7 +60,7 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ value, onChange }) 
         search(),
         autocompletion(),
         markdown(),
-        oneDark,
+        themeCompartment.current.of(theme === 'dark' ? oneDark : lightTheme),
         keymap.of([
           ...defaultKeymap,
           ...historyKeymap,
@@ -81,6 +111,17 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ value, onChange }) 
       }
     }
   }, [value]);
+
+  // 動態更新主題
+  useEffect(() => {
+    if (viewRef.current) {
+      viewRef.current.dispatch({
+        effects: themeCompartment.current.reconfigure(
+          theme === 'dark' ? oneDark : lightTheme
+        ),
+      });
+    }
+  }, [theme]);
 
   return <div ref={editorRef} className="h-full w-full" />;
 };
