@@ -1,0 +1,23 @@
+{
+  "name": "@macdown/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MacDown for Windows - Shared Types and Utilities",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.2"
+  }
+}
