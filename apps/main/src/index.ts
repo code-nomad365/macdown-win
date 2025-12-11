@@ -1,0 +1,71 @@
+import { app, BrowserWindow, shell } from 'electron';
+import { release } from 'node:os';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+process.env.DIST = join(__dirname, '../../renderer/dist');
+process.env.PUBLIC = app.isPackaged
+  ? process.env.DIST
+  : join(__dirname, '../../renderer/public');
+
+if (release().startsWith('6.1')) app.disableHardwareAcceleration();
+
+if (process.platform === 'win32') app.setAppUserModelId(app.getName());
+
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+  process.exit(0);
+}
+
+let win: BrowserWindow | null = null;
+const url = 'http://localhost:5173';
+const indexHtml = join(process.env.DIST, 'index.html');
+
+async function createWindow() {
+  win = new BrowserWindow({
+    title: 'MacDown',
+    icon: join(process.env.PUBLIC, 'favicon.ico'),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      // preload: join(__dirname, '../preload/index.js'),
+    },
+  });
+
+  if (app.isPackaged) {
+    await win.loadFile(indexHtml);
+  } else {
+    await win.loadURL(url);
+    win.webContents.openDevTools();
+  }
+
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('https:')) shell.openExternal(url);
+    return { action: 'deny' };
+  });
+}
+
+app.whenReady().then(createWindow);
+
+app.on('window-all-closed', () => {
+  win = null;
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});
+
+app.on('second-instance', () => {
+  if (win) {
+    if (win.isMinimized()) win.restore();
+    win.focus();
+  }
+});
