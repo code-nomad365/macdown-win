@@ -7,21 +7,38 @@ const DEFAULT_CONTENT = '# Welcome to MacDown for Windows! 🚀\n\nA modern Mark
 const App: React.FC = () => {
   const [content, setContent] = useState<string>(DEFAULT_CONTENT);
   const [filePath, setFilePath] = useState<string | null>(null);
+  const [isDirty, setIsDirty] = useState<boolean>(false);
+  const [savedContent, setSavedContent] = useState<string>(DEFAULT_CONTENT);
 
   const html = useMarkdown(content);
 
   // 取得檔案名稱（用於標題顯示）
   const fileName = filePath ? filePath.split(/[\\/]/).pop() : 'Untitled';
 
+  // 追蹤內容是否已修改
+  useEffect(() => {
+    setIsDirty(content !== savedContent);
+  }, [content, savedContent]);
+
   // 檔案操作函數
   const handleOpenFile = async () => {
     if (!window.electronAPI) return;
+
+    // 如果有未儲存的變更，先詢問用戶
+    if (isDirty) {
+      const userChoice = confirm(
+        '您有未儲存的變更。是否要繼續開啟新檔案？\n\n點擊「確定」將放棄未儲存的變更。\n點擊「取消」返回繼續編輯。'
+      );
+      if (!userChoice) return;
+    }
 
     try {
       const result = await window.electronAPI.openFile();
       if (result) {
         setContent(result.content);
         setFilePath(result.filePath);
+        setSavedContent(result.content);
+        setIsDirty(false);
       }
     } catch (error) {
       console.error('Failed to open file:', error);
@@ -36,6 +53,8 @@ const App: React.FC = () => {
       const result = await window.electronAPI.saveFile(content);
       if (result) {
         setFilePath(result.filePath);
+        setSavedContent(content);
+        setIsDirty(false);
       }
     } catch (error) {
       console.error('Failed to save file:', error);
@@ -50,6 +69,8 @@ const App: React.FC = () => {
       const result = await window.electronAPI.saveFileAs(content);
       if (result) {
         setFilePath(result.filePath);
+        setSavedContent(content);
+        setIsDirty(false);
       }
     } catch (error) {
       console.error('Failed to save file:', error);
@@ -72,11 +93,30 @@ const App: React.FC = () => {
     };
   }, [content]);
 
+  // 處理關閉視窗前的警告
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isDirty]);
+
   return (
     <div className="flex h-screen w-full flex-col bg-white text-slate-900">
       <header className="flex h-12 shrink-0 items-center justify-between border-b border-slate-200 px-4">
         <h1 className="text-lg font-bold text-slate-800">MacDown</h1>
-        <span className="text-sm text-slate-600">{fileName}</span>
+        <span className="text-sm text-slate-600">
+          {isDirty && <span className="text-orange-500">● </span>}
+          {fileName}
+        </span>
       </header>
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 border-r border-slate-200">
