@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useMarkdown } from './hooks/useMarkdown';
+import CodeMirrorEditor from './components/CodeMirrorEditor';
 
 const DEFAULT_CONTENT = '# Welcome to MacDown for Windows! 🚀\n\nA modern Markdown editor with **live preview** and **syntax highlighting**.\n\n## ✨ Features\n\n- ✅ Live Markdown preview\n- ✅ Syntax highlighting powered by Prism.js\n- ✅ File management (Ctrl+O / Ctrl+S)\n- ⏳ Multiple themes (coming soon)\n\n## 📝 Markdown Examples\n\n### Text Formatting\n\nYou can write **bold text**, *italic text*, and even ~~strikethrough~~.\n\nInline `code snippets` are also supported!\n\n### Code Blocks\n\n**JavaScript:**\n```javascript\nfunction fibonacci(n) {\n  if (n <= 1) return n;\n  return fibonacci(n - 1) + fibonacci(n - 2);\n}\n\nconsole.log(fibonacci(10)); // 55\n```\n\n**Python:**\n```python\ndef quick_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quick_sort(left) + middle + quick_sort(right)\n```\n\n**TypeScript:**\n```typescript\ninterface User {\n  id: number;\n  name: string;\n  email: string;\n}\n\nconst user: User = {\n  id: 1,\n  name: "Alice",\n  email: "alice@example.com"\n};\n```\n\n### Keyboard Shortcuts\n\n- **Ctrl+O** - Open file\n- **Ctrl+S** - Save file\n- **Ctrl+Shift+S** - Save as...\n\n---\n\n**Made with ❤️ using Electron + React + TypeScript**';
 
@@ -79,13 +80,7 @@ const App: React.FC = () => {
       </header>
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 border-r border-slate-200">
-          <textarea
-            className="h-full w-full resize-none p-4 font-mono text-sm outline-none text-slate-800 placeholder:text-slate-400"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            spellCheck={false}
-            placeholder="Write your markdown here..."
-          />
+          <CodeMirrorEditor value={content} onChange={setContent} />
         </div>
         <div className="flex-1 overflow-auto bg-slate-50 p-8">
           <div
