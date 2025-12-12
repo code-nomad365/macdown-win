@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @macdown/renderer dev",
-    "dev:electron": "pnpm --filter @macdown/main dev",
+    "dev:electron": "cross-env DEV=true pnpm --filter @macdown/main start",
     "build": "pnpm -r build",
     "build:electron": "pnpm --filter @macdown/main build && pnpm --filter @macdown/renderer build",
     "start": "pnpm --filter @macdown/main start",
@@ -20,6 +20,7 @@
     "@types/node": "^20.10.0",
     "@typescript-eslint/eslint-plugin": "^6.13.0",
     "@typescript-eslint/parser": "^6.13.0",
+    "cross-env": "^10.1.0",
     "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "prettier": "^3.1.0",

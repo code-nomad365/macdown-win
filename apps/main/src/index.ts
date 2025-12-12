@@ -41,11 +41,12 @@ async function createWindow() {
     },
   });
 
-  if (app.isPackaged) {
-    await win.loadFile(indexHtml);
-  } else {
+  // 只有在明確設置 DEV 環境變數時才使用開發服務器
+  if (process.env.DEV === 'true') {
     await win.loadURL(url);
     win.webContents.openDevTools();
+  } else {
+    await win.loadFile(indexHtml);
   }
 
   win.webContents.setWindowOpenHandler(({ url }) => {
