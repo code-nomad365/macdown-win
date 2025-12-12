@@ -1,4 +1,4 @@
-import { ipcMain, dialog, BrowserWindow } from 'electron'
+import { ipcMain, dialog, BrowserWindow, shell } from 'electron'
 import { writeFile } from 'fs/promises'
 
 /**
@@ -23,6 +23,10 @@ export function registerExportHandlers() {
 
     try {
       await writeFile(result.filePath, fullHtml, 'utf-8')
+
+      // 開啟檔案所在的資料夾並選中檔案
+      shell.showItemInFolder(result.filePath)
+
       return {
         success: true,
         filePath: result.filePath,
@@ -73,6 +77,9 @@ export function registerExportHandlers() {
       await writeFile(result.filePath, pdfData)
 
       win.destroy()
+
+      // 開啟檔案所在的資料夾並選中檔案
+      shell.showItemInFolder(result.filePath)
 
       return {
         success: true,

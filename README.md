@@ -49,6 +49,14 @@ MacDown for Windows 是受 macOS 經典 Markdown 編輯器 [MacDown](https://mac
 - 標籤系統（多對多關聯）
 - 自動維護索引與外鍵約束
 
+### 🎛️ **View 與 UI 功能**
+- **同步滾動**：編輯器滾動時預覽視窗自動同步
+- **預覽縮放**：50%~200% 自由調整，預設 80%
+- **切換工具列**：一鍵隱藏/顯示工具列，獲得更大編輯空間
+- **複製 HTML**：一鍵複製渲染後的 HTML 到剪貼簿
+- **三種分割比例**：1:1、3:1、1:3 靈活調整
+- **隱藏編輯器/預覽**：專注於編輯或預覽
+
 ### ⌨️ **豐富的鍵盤快捷鍵**
 | 功能 | Windows 快捷鍵 |
 |------|---------------|
@@ -57,8 +65,16 @@ MacDown for Windows 是受 macOS 經典 Markdown 編輯器 [MacDown](https://mac
 | 另存新檔 | `Ctrl+Shift+S` |
 | 匯出 HTML | `Ctrl+Shift+H` |
 | 匯出 PDF | `Ctrl+Shift+P` |
+| 列印 | `Ctrl+P` |
 | 搜尋 | `Ctrl+F` |
 | 復原/重做 | `Ctrl+Z` / `Ctrl+Y` |
+| 複製 HTML | `Ctrl+Shift+C` |
+| 切換工具列 | `Ctrl+Shift+T` |
+| 隱藏編輯器 | `Ctrl+Shift+E` |
+| 隱藏預覽 | `Ctrl+Shift+P` |
+| 分割比例 1:1 | `Ctrl+1` |
+| 分割比例 3:1 | `Ctrl+2` |
+| 分割比例 1:3 | `Ctrl+3` |
 | 主題切換 | 點擊標題欄按鈕 |
 
 ## 🖼️ 截圖

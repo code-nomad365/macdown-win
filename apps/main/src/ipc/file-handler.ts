@@ -55,6 +55,21 @@ export function registerFileHandlers() {
     }
   })
 
+  // 開啟指定路徑的檔案
+  ipcMain.handle('file:openPath', async (_event, filePath: string) => {
+    try {
+      const content = await readFile(filePath, 'utf-8')
+      currentFilePath = filePath
+      return {
+        content,
+        filePath,
+      }
+    } catch (error) {
+      console.error('Failed to read file:', error)
+      throw error
+    }
+  })
+
   // 另存新檔
   ipcMain.handle('file:saveAs', async (_event, content: string) => {
     const result = await dialog.showSaveDialog({
