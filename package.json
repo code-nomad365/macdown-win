@@ -11,7 +11,7 @@
     "dev:electron": "pnpm --filter @macdown/main dev",
     "build": "pnpm -r build",
     "build:electron": "pnpm --filter @macdown/main build && pnpm --filter @macdown/renderer build",
-    "start": "electron ./apps/main/dist/index.js",
+    "start": "pnpm --filter @macdown/main start",
     "lint": "eslint . --ext .ts,.tsx",
     "type-check": "tsc --noEmit",
     "clean": "rimraf apps/**/dist packages/**/dist node_modules"
