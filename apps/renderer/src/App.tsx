@@ -113,11 +113,11 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!window.electronAPI) return;
 
-    const removeOpenListener = window.electronAPI.onOpenFile(handleOpenFile);
-    const removeSaveListener = window.electronAPI.onSaveFile(handleSaveFile);
-    const removeSaveAsListener = window.electronAPI.onSaveFileAs(handleSaveFileAs);
-    const removeExportHTMLListener = window.electronAPI.onExportHTML(handleExportHTML);
-    const removeExportPDFListener = window.electronAPI.onExportPDF(handleExportPDF);
+    const removeOpenListener = window.electronAPI.onOpenFile(() => handleOpenFile());
+    const removeSaveListener = window.electronAPI.onSaveFile(() => handleSaveFile());
+    const removeSaveAsListener = window.electronAPI.onSaveFileAs(() => handleSaveFileAs());
+    const removeExportHTMLListener = window.electronAPI.onExportHTML(() => handleExportHTML());
+    const removeExportPDFListener = window.electronAPI.onExportPDF(() => handleExportPDF());
 
     return () => {
       removeOpenListener();
@@ -126,7 +126,8 @@ const App: React.FC = () => {
       removeExportHTMLListener();
       removeExportPDFListener();
     };
-  }, [content, html, fileName]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 只在組件掛載時註冊一次
 
   // 處理關閉視窗前的警告
   useEffect(() => {
@@ -158,8 +159,8 @@ const App: React.FC = () => {
             }`}
             title={`切換至${theme === 'dark' ? '淺色' : '深色'}主題`}
           >
-            {theme === 'dark' ? '🌙' : '☀️'}
-            <span>{theme === 'dark' ? '深色' : '淺色'}</span>
+            {theme === 'dark' ? '☀️' : '🌙'}
+            <span>{theme === 'dark' ? '淺色' : '深色'}</span>
           </button>
           <span className={`text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
             {isDirty && <span className="text-orange-500">● </span>}
