@@ -4,6 +4,8 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { registerFileHandlers } from './ipc/file-handler.js';
 import { registerExportHandlers } from './ipc/export-handler.js';
+import { registerLibraryHandlers } from './ipc/library-handler.js';
+import { initDatabase, closeDatabase } from './database/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -53,9 +55,13 @@ async function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // 初始化資料庫
+  initDatabase();
+
   // 註冊 IPC handlers
   registerFileHandlers();
   registerExportHandlers();
+  registerLibraryHandlers();
 
   // 建立選單
   createMenu();
@@ -66,6 +72,7 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   win = null;
+  closeDatabase();
   if (process.platform !== 'darwin') {
     app.quit();
   }

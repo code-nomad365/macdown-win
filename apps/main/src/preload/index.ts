@@ -11,6 +11,17 @@ const api = {
   exportHTML: (html: string, title: string) => ipcRenderer.invoke('export:html', html, title),
   exportPDF: (html: string, title: string) => ipcRenderer.invoke('export:pdf', html, title),
 
+  // 文件庫操作
+  createDocument: (title: string, content: string, folderId?: string | null) =>
+    ipcRenderer.invoke('library:createDocument', title, content, folderId),
+  getAllDocuments: () => ipcRenderer.invoke('library:getAllDocuments'),
+  getDocument: (id: string) => ipcRenderer.invoke('library:getDocument', id),
+  updateDocument: (id: string, updates: { title?: string; content?: string; folderId?: string | null }) =>
+    ipcRenderer.invoke('library:updateDocument', id, updates),
+  deleteDocument: (id: string) => ipcRenderer.invoke('library:deleteDocument', id),
+  searchDocuments: (query: string) => ipcRenderer.invoke('library:searchDocuments', query),
+  getDocumentsByFolder: (folderId: string | null) => ipcRenderer.invoke('library:getDocumentsByFolder', folderId),
+
   // 監聽快捷鍵事件
   onOpenFile: (callback: () => void) => {
     ipcRenderer.on('menu:openFile', callback)
