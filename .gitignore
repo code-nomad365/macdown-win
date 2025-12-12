@@ -47,3 +47,5 @@ coverage/
 *.temp
 .cache/
 DEBUG.txt
+test-electron.js
+electron-output*.log
