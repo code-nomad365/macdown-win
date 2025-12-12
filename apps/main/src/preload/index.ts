@@ -43,6 +43,14 @@ const api = {
     ipcRenderer.on('menu:exportPDF', callback)
     return () => ipcRenderer.removeListener('menu:exportPDF', callback)
   },
+  onUndo: (callback: () => void) => {
+    ipcRenderer.on('menu:undo', callback)
+    return () => ipcRenderer.removeListener('menu:undo', callback)
+  },
+  onRedo: (callback: () => void) => {
+    ipcRenderer.on('menu:redo', callback)
+    return () => ipcRenderer.removeListener('menu:redo', callback)
+  },
 }
 
 // 將 API 暴露到 window 物件

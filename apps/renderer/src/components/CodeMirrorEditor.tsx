@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLine } from '@codemirror/view';
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
+import { defaultKeymap, history, historyKeymap, undo, redo } from '@codemirror/commands';
 import { markdown } from '@codemirror/lang-markdown';
 import { search, searchKeymap } from '@codemirror/search';
 import { autocompletion, completionKeymap } from '@codemirror/autocomplete';
@@ -12,6 +12,11 @@ interface CodeMirrorEditorProps {
   value: string;
   onChange: (value: string) => void;
   theme?: 'light' | 'dark';
+}
+
+export interface CodeMirrorEditorRef {
+  undo: () => void;
+  redo: () => void;
 }
 
 // 淺色主題配置
@@ -42,10 +47,25 @@ const lightTheme = EditorView.theme({
   },
 }, { dark: false });
 
-const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ value, onChange, theme = 'dark' }) => {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const viewRef = useRef<EditorView | null>(null);
-  const themeCompartment = useRef(new Compartment());
+const CodeMirrorEditor = forwardRef<CodeMirrorEditorRef, CodeMirrorEditorProps>(
+  ({ value, onChange, theme = 'dark' }, ref) => {
+    const editorRef = useRef<HTMLDivElement>(null);
+    const viewRef = useRef<EditorView | null>(null);
+    const themeCompartment = useRef(new Compartment());
+
+    // 暴露 undo/redo 方法給父組件
+    useImperativeHandle(ref, () => ({
+      undo: () => {
+        if (viewRef.current) {
+          undo(viewRef.current);
+        }
+      },
+      redo: () => {
+        if (viewRef.current) {
+          redo(viewRef.current);
+        }
+      },
+    }));
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -124,6 +144,9 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ value, onChange, th
   }, [theme]);
 
   return <div ref={editorRef} className="h-full w-full" />;
-};
+  }
+);
+
+CodeMirrorEditor.displayName = 'CodeMirrorEditor';
 
 export default CodeMirrorEditor;

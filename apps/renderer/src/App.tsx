@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useMarkdown } from './hooks/useMarkdown';
-import CodeMirrorEditor from './components/CodeMirrorEditor';
+import CodeMirrorEditor, { CodeMirrorEditorRef } from './components/CodeMirrorEditor';
 import { useThemeStore } from './stores/themeStore';
 
 const DEFAULT_CONTENT = '# Welcome to MacDown for Windows! 🚀\n\nA modern Markdown editor with **live preview** and **syntax highlighting**.\n\n## ✨ Features\n\n- ✅ Live Markdown preview\n- ✅ Syntax highlighting powered by Prism.js\n- ✅ File management (Ctrl+O / Ctrl+S)\n- ⏳ Multiple themes (coming soon)\n\n## 📝 Markdown Examples\n\n### Text Formatting\n\nYou can write **bold text**, *italic text*, and even ~~strikethrough~~.\n\nInline `code snippets` are also supported!\n\n### Code Blocks\n\n**JavaScript:**\n```javascript\nfunction fibonacci(n) {\n  if (n <= 1) return n;\n  return fibonacci(n - 1) + fibonacci(n - 2);\n}\n\nconsole.log(fibonacci(10)); // 55\n```\n\n**Python:**\n```python\ndef quick_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quick_sort(left) + middle + quick_sort(right)\n```\n\n**TypeScript:**\n```typescript\ninterface User {\n  id: number;\n  name: string;\n  email: string;\n}\n\nconst user: User = {\n  id: 1,\n  name: "Alice",\n  email: "alice@example.com"\n};\n```\n\n### Keyboard Shortcuts\n\n- **Ctrl+O** - Open file\n- **Ctrl+S** - Save file\n- **Ctrl+Shift+S** - Save as...\n\n---\n\n**Made with ❤️ using Electron + React + TypeScript**';
@@ -12,6 +12,7 @@ const App: React.FC = () => {
   const [savedContent, setSavedContent] = useState<string>(DEFAULT_CONTENT);
 
   const { theme, toggleTheme } = useThemeStore();
+  const editorRef = useRef<CodeMirrorEditorRef>(null);
 
   const html = useMarkdown(content);
 
@@ -115,6 +116,20 @@ const App: React.FC = () => {
     }
   }, [html, fileName]);
 
+  const handleUndo = useCallback(() => {
+    console.log('🔙 handleUndo called');
+    if (editorRef.current) {
+      editorRef.current.undo();
+    }
+  }, []);
+
+  const handleRedo = useCallback(() => {
+    console.log('🔜 handleRedo called');
+    if (editorRef.current) {
+      editorRef.current.redo();
+    }
+  }, []);
+
   // 監聽選單快捷鍵事件
   useEffect(() => {
     if (!window.electronAPI) {
@@ -144,6 +159,14 @@ const App: React.FC = () => {
       console.log('🎯 menu:exportPDF event received');
       handleExportPDF();
     });
+    const removeUndoListener = window.electronAPI.onUndo(() => {
+      console.log('🎯 menu:undo event received');
+      handleUndo();
+    });
+    const removeRedoListener = window.electronAPI.onRedo(() => {
+      console.log('🎯 menu:redo event received');
+      handleRedo();
+    });
 
     console.log('✅ Menu event listeners registered successfully');
 
@@ -154,8 +177,10 @@ const App: React.FC = () => {
       removeSaveAsListener();
       removeExportHTMLListener();
       removeExportPDFListener();
+      removeUndoListener();
+      removeRedoListener();
     };
-  }, [handleOpenFile, handleSaveFile, handleSaveFileAs, handleExportHTML, handleExportPDF]);
+  }, [handleOpenFile, handleSaveFile, handleSaveFileAs, handleExportHTML, handleExportPDF, handleUndo, handleRedo]);
 
   // 處理關閉視窗前的警告
   useEffect(() => {
@@ -197,12 +222,12 @@ const App: React.FC = () => {
         </div>
       </header>
       <div className="flex flex-1 overflow-hidden">
-        <div className={`flex-1 border-r ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'}`}>
-          <CodeMirrorEditor value={content} onChange={setContent} theme={theme} />
+        <div className={`w-1/2 min-w-0 border-r ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'}`}>
+          <CodeMirrorEditor ref={editorRef} value={content} onChange={setContent} theme={theme} />
         </div>
-        <div className={`flex-1 overflow-auto p-8 ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-50'}`}>
+        <div className={`w-1/2 min-w-0 overflow-auto p-8 ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-50'}`}>
           <div
-            className={`prose max-w-none ${theme === 'dark' ? 'prose-invert' : 'prose-slate'}`}
+            className={`prose max-w-none break-words ${theme === 'dark' ? 'prose-invert' : 'prose-slate'}`}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </div>

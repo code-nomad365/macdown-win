@@ -26,6 +26,8 @@ export interface ElectronAPI {
   onSaveFileAs: (callback: () => void) => () => void
   onExportHTML: (callback: () => void) => () => void
   onExportPDF: (callback: () => void) => () => void
+  onUndo: (callback: () => void) => () => void
+  onRedo: (callback: () => void) => () => void
 }
 
 declare global {
