@@ -19,7 +19,15 @@ if %errorlevel% neq 0 (
 echo [OK] pnpm installed
 
 echo.
-echo [2/3] Building project...
+echo [2/4] Rebuilding native modules...
+call pnpm --filter @macdown/main rebuild
+if %errorlevel% neq 0 (
+    echo [WARNING] Rebuild failed, but continuing...
+)
+echo [OK] Rebuild completed
+
+echo.
+echo [3/4] Building project...
 call pnpm build
 if %errorlevel% neq 0 (
     echo [ERROR] Build failed
@@ -29,7 +37,7 @@ if %errorlevel% neq 0 (
 echo [OK] Build completed
 
 echo.
-echo [3/3] Starting application...
+echo [4/4] Starting application...
 call pnpm start
 
 pause

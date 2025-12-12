@@ -122,12 +122,18 @@ cd macdown-win
 pnpm install
 ```
 
-#### 3. 編譯專案
+#### 3. 重新編譯原生模組
+```bash
+pnpm --filter @macdown/main rebuild
+```
+**注意**：由於使用了 better-sqlite3 原生模組，首次安裝後必須執行此步驟。
+
+#### 4. 編譯專案
 ```bash
 pnpm build
 ```
 
-#### 4. 啟動應用程式
+#### 5. 啟動應用程式
 ```bash
 pnpm start
 ```
