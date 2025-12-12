@@ -37,7 +37,7 @@ async function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, 'preload/index.js'),
     },
   });
 
