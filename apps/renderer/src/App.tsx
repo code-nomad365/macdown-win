@@ -50,10 +50,16 @@ const App: React.FC = () => {
   }, [isDirty]);
 
   const handleSaveFile = useCallback(async () => {
-    if (!window.electronAPI) return;
+    console.log('📝 handleSaveFile called, content length:', content.length);
+    if (!window.electronAPI) {
+      console.error('❌ electronAPI not available in handleSaveFile');
+      return;
+    }
 
     try {
+      console.log('💾 Calling electronAPI.saveFile...');
       const result = await window.electronAPI.saveFile(content);
+      console.log('✅ Save result:', result);
       if (result) {
         setFilePath(result.filePath);
         setSavedContent(content);
@@ -111,15 +117,38 @@ const App: React.FC = () => {
 
   // 監聽選單快捷鍵事件
   useEffect(() => {
-    if (!window.electronAPI) return;
+    if (!window.electronAPI) {
+      console.error('❌ electronAPI not available');
+      return;
+    }
 
-    const removeOpenListener = window.electronAPI.onOpenFile(handleOpenFile);
-    const removeSaveListener = window.electronAPI.onSaveFile(handleSaveFile);
-    const removeSaveAsListener = window.electronAPI.onSaveFileAs(handleSaveFileAs);
-    const removeExportHTMLListener = window.electronAPI.onExportHTML(handleExportHTML);
-    const removeExportPDFListener = window.electronAPI.onExportPDF(handleExportPDF);
+    console.log('✅ Setting up menu event listeners...');
+
+    const removeOpenListener = window.electronAPI.onOpenFile(() => {
+      console.log('🎯 menu:openFile event received');
+      handleOpenFile();
+    });
+    const removeSaveListener = window.electronAPI.onSaveFile(() => {
+      console.log('🎯 menu:saveFile event received');
+      handleSaveFile();
+    });
+    const removeSaveAsListener = window.electronAPI.onSaveFileAs(() => {
+      console.log('🎯 menu:saveFileAs event received');
+      handleSaveFileAs();
+    });
+    const removeExportHTMLListener = window.electronAPI.onExportHTML(() => {
+      console.log('🎯 menu:exportHTML event received');
+      handleExportHTML();
+    });
+    const removeExportPDFListener = window.electronAPI.onExportPDF(() => {
+      console.log('🎯 menu:exportPDF event received');
+      handleExportPDF();
+    });
+
+    console.log('✅ Menu event listeners registered successfully');
 
     return () => {
+      console.log('🧹 Cleaning up menu event listeners');
       removeOpenListener();
       removeSaveListener();
       removeSaveAsListener();
