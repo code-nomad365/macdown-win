@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useMarkdown } from './hooks/useMarkdown';
 import CodeMirrorEditor from './components/CodeMirrorEditor';
 import { useThemeStore } from './stores/themeStore';
@@ -24,7 +24,7 @@ const App: React.FC = () => {
   }, [content, savedContent]);
 
   // 檔案操作函數
-  const handleOpenFile = async () => {
+  const handleOpenFile = useCallback(async () => {
     if (!window.electronAPI) return;
 
     // 如果有未儲存的變更，先詢問用戶
@@ -47,9 +47,9 @@ const App: React.FC = () => {
       console.error('Failed to open file:', error);
       alert('Failed to open file');
     }
-  };
+  }, [isDirty]);
 
-  const handleSaveFile = async () => {
+  const handleSaveFile = useCallback(async () => {
     if (!window.electronAPI) return;
 
     try {
@@ -63,9 +63,9 @@ const App: React.FC = () => {
       console.error('Failed to save file:', error);
       alert('Failed to save file');
     }
-  };
+  }, [content]);
 
-  const handleSaveFileAs = async () => {
+  const handleSaveFileAs = useCallback(async () => {
     if (!window.electronAPI) return;
 
     try {
@@ -79,9 +79,9 @@ const App: React.FC = () => {
       console.error('Failed to save file:', error);
       alert('Failed to save file');
     }
-  };
+  }, [content]);
 
-  const handleExportHTML = async () => {
+  const handleExportHTML = useCallback(async () => {
     if (!window.electronAPI) return;
 
     try {
@@ -93,9 +93,9 @@ const App: React.FC = () => {
       console.error('Failed to export HTML:', error);
       alert('Failed to export HTML');
     }
-  };
+  }, [html, fileName]);
 
-  const handleExportPDF = async () => {
+  const handleExportPDF = useCallback(async () => {
     if (!window.electronAPI) return;
 
     try {
@@ -107,17 +107,17 @@ const App: React.FC = () => {
       console.error('Failed to export PDF:', error);
       alert('Failed to export PDF');
     }
-  };
+  }, [html, fileName]);
 
   // 監聽選單快捷鍵事件
   useEffect(() => {
     if (!window.electronAPI) return;
 
-    const removeOpenListener = window.electronAPI.onOpenFile(() => handleOpenFile());
-    const removeSaveListener = window.electronAPI.onSaveFile(() => handleSaveFile());
-    const removeSaveAsListener = window.electronAPI.onSaveFileAs(() => handleSaveFileAs());
-    const removeExportHTMLListener = window.electronAPI.onExportHTML(() => handleExportHTML());
-    const removeExportPDFListener = window.electronAPI.onExportPDF(() => handleExportPDF());
+    const removeOpenListener = window.electronAPI.onOpenFile(handleOpenFile);
+    const removeSaveListener = window.electronAPI.onSaveFile(handleSaveFile);
+    const removeSaveAsListener = window.electronAPI.onSaveFileAs(handleSaveFileAs);
+    const removeExportHTMLListener = window.electronAPI.onExportHTML(handleExportHTML);
+    const removeExportPDFListener = window.electronAPI.onExportPDF(handleExportPDF);
 
     return () => {
       removeOpenListener();
@@ -126,8 +126,7 @@ const App: React.FC = () => {
       removeExportHTMLListener();
       removeExportPDFListener();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // 只在組件掛載時註冊一次
+  }, [handleOpenFile, handleSaveFile, handleSaveFileAs, handleExportHTML, handleExportPDF]);
 
   // 處理關閉視窗前的警告
   useEffect(() => {
