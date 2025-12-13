@@ -7,6 +7,7 @@ export interface ElectronAPI {
   openFilePath: (filePath: string) => Promise<{ content: string; filePath: string } | null>
   saveFile: (content: string) => Promise<{ success: boolean; filePath: string } | null>
   saveFileAs: (content: string) => Promise<{ success: boolean; filePath: string } | null>
+  showInFolder: (filePath: string) => Promise<{ success: boolean; error?: string }>
 
   // 匯出操作
   exportHTML: (html: string, title: string) => Promise<{ success: boolean; filePath: string } | null>
@@ -53,6 +54,8 @@ export interface ElectronAPI {
   onToggleToolbar: (callback: () => void) => () => void
   onPageSetup: (callback: () => void) => () => void
   onPrint: (callback: () => void) => () => void
+  onFind: (callback: () => void) => () => void
+  onSetTheme: (callback: (theme: string) => void) => () => void
 }
 
 declare global {

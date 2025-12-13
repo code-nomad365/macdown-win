@@ -7,6 +7,7 @@ const api = {
   openFilePath: (filePath: string) => ipcRenderer.invoke('file:openPath', filePath),
   saveFile: (content: string) => ipcRenderer.invoke('file:save', content),
   saveFileAs: (content: string) => ipcRenderer.invoke('file:saveAs', content),
+  showInFolder: (filePath: string) => ipcRenderer.invoke('file:showInFolder', filePath),
 
   // 匯出操作
   exportHTML: (html: string, title: string) => ipcRenderer.invoke('export:html', html, title),
@@ -111,6 +112,15 @@ const api = {
   onPrint: (callback: () => void) => {
     ipcRenderer.on('menu:print', callback)
     return () => ipcRenderer.removeListener('menu:print', callback)
+  },
+  onFind: (callback: () => void) => {
+    ipcRenderer.on('menu:find', callback)
+    return () => ipcRenderer.removeListener('menu:find', callback)
+  },
+  onSetTheme: (callback: (theme: string) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, theme: string) => callback(theme)
+    ipcRenderer.on('menu:setTheme', listener)
+    return () => ipcRenderer.removeListener('menu:setTheme', listener)
   },
 }
 

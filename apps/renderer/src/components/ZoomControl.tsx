@@ -13,47 +13,35 @@ const ZoomControl: React.FC<ZoomControlProps> = ({
   onZoomIn,
   onZoomOut,
   onZoomReset,
-  theme,
 }) => {
-  const buttonClass = `px-2 py-1 rounded text-sm font-medium transition-colors ${
-    theme === 'dark'
-      ? 'bg-slate-700 text-slate-200 hover:bg-slate-600'
-      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-  }`;
-
-  const disabledClass = `px-2 py-1 rounded text-sm font-medium opacity-50 cursor-not-allowed ${
-    theme === 'dark'
-      ? 'bg-slate-700 text-slate-200'
-      : 'bg-slate-100 text-slate-700'
-  }`;
-
   return (
-    <div className={`flex items-center gap-2 px-4 py-2 border-b ${
-      theme === 'dark' ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'
-    }`}>
-      <button
-        onClick={onZoomOut}
-        className={zoom <= 50 ? disabledClass : buttonClass}
-        disabled={zoom <= 50}
-        title="縮小 (最小 50%)"
-      >
-        −
-      </button>
-      <button
-        onClick={onZoomReset}
-        className={buttonClass}
-        title="重設為 100%"
-      >
-        {zoom}%
-      </button>
-      <button
-        onClick={onZoomIn}
-        className={zoom >= 200 ? disabledClass : buttonClass}
-        disabled={zoom >= 200}
-        title="放大 (最大 200%)"
-      >
-        +
-      </button>
+    <div className="flex items-center gap-2 px-4 py-2 border-b border-base-300 bg-base-200">
+      <span className="text-sm font-medium mr-2">預覽縮放：</span>
+      <div className="btn-group">
+        <button
+          onClick={onZoomOut}
+          className="btn btn-sm btn-ghost"
+          disabled={zoom <= 50}
+          title="縮小 (最小 50%)"
+        >
+          −
+        </button>
+        <button
+          onClick={onZoomReset}
+          className="btn btn-sm btn-ghost"
+          title="重設為 80%"
+        >
+          <span className="badge badge-sm">{zoom}%</span>
+        </button>
+        <button
+          onClick={onZoomIn}
+          className="btn btn-sm btn-ghost"
+          disabled={zoom >= 200}
+          title="放大 (最大 200%)"
+        >
+          +
+        </button>
+      </div>
     </div>
   );
 };

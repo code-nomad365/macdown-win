@@ -280,6 +280,16 @@ async function createMenu() {
         { role: 'selectAll' },
         { type: 'separator' },
         {
+          label: 'Find',
+          accelerator: 'CmdOrCtrl+F',
+          click: () => {
+            if (win) {
+              win.webContents.send('menu:find');
+            }
+          },
+        },
+        { type: 'separator' },
+        {
           label: 'Copy Rendered HTML',
           accelerator: 'CmdOrCtrl+Shift+C',
           click: () => {
@@ -294,76 +304,143 @@ async function createMenu() {
       label: 'View',
       submenu: [
         {
-          label: 'Split View',
+          label: 'Appearance',
           submenu: [
             {
-              label: 'Left 1:1 Right',
-              accelerator: 'CmdOrCtrl+1',
-              click: () => {
-                if (win) {
-                  win.webContents.send('menu:splitRatio', '1:1');
-                }
-              },
+              label: 'Themes',
+              submenu: [
+                {
+                  label: 'Light Themes',
+                  submenu: [
+                    { label: '明亮 (Light)', click: () => win?.webContents.send('menu:setTheme', 'light') },
+                    { label: '杯子蛋糕 (Cupcake)', click: () => win?.webContents.send('menu:setTheme', 'cupcake') },
+                    { label: '大黃蜂 (Bumblebee)', click: () => win?.webContents.send('menu:setTheme', 'bumblebee') },
+                    { label: '翡翠綠 (Emerald)', click: () => win?.webContents.send('menu:setTheme', 'emerald') },
+                    { label: '企業風 (Corporate)', click: () => win?.webContents.send('menu:setTheme', 'corporate') },
+                    { label: '復古 (Retro)', click: () => win?.webContents.send('menu:setTheme', 'retro') },
+                    { label: '賽博龐克 (Cyberpunk)', click: () => win?.webContents.send('menu:setTheme', 'cyberpunk') },
+                    { label: '情人節 (Valentine)', click: () => win?.webContents.send('menu:setTheme', 'valentine') },
+                    { label: '花園 (Garden)', click: () => win?.webContents.send('menu:setTheme', 'garden') },
+                    { label: 'Lo-Fi', click: () => win?.webContents.send('menu:setTheme', 'lofi') },
+                    { label: '粉彩 (Pastel)', click: () => win?.webContents.send('menu:setTheme', 'pastel') },
+                    { label: '幻想 (Fantasy)', click: () => win?.webContents.send('menu:setTheme', 'fantasy') },
+                    { label: '線框 (Wireframe)', click: () => win?.webContents.send('menu:setTheme', 'wireframe') },
+                    { label: 'CMYK', click: () => win?.webContents.send('menu:setTheme', 'cmyk') },
+                    { label: '秋天 (Autumn)', click: () => win?.webContents.send('menu:setTheme', 'autumn') },
+                    { label: '酸性 (Acid)', click: () => win?.webContents.send('menu:setTheme', 'acid') },
+                    { label: '檸檬水 (Lemonade)', click: () => win?.webContents.send('menu:setTheme', 'lemonade') },
+                    { label: '冬天 (Winter)', click: () => win?.webContents.send('menu:setTheme', 'winter') },
+                  ],
+                },
+                {
+                  label: 'Dark Themes',
+                  submenu: [
+                    { label: '深色 (Dark)', click: () => win?.webContents.send('menu:setTheme', 'dark') },
+                    { label: '合成波 (Synthwave)', click: () => win?.webContents.send('menu:setTheme', 'synthwave') },
+                    { label: '萬聖節 (Halloween)', click: () => win?.webContents.send('menu:setTheme', 'halloween') },
+                    { label: '森林 (Forest)', click: () => win?.webContents.send('menu:setTheme', 'forest') },
+                    { label: '水藍 (Aqua)', click: () => win?.webContents.send('menu:setTheme', 'aqua') },
+                    { label: '黑色 (Black)', click: () => win?.webContents.send('menu:setTheme', 'black') },
+                    { label: '奢華 (Luxury)', click: () => win?.webContents.send('menu:setTheme', 'luxury') },
+                    { label: '德古拉 (Dracula)', click: () => win?.webContents.send('menu:setTheme', 'dracula') },
+                    { label: '商務 (Business)', click: () => win?.webContents.send('menu:setTheme', 'business') },
+                    { label: '夜晚 (Night)', click: () => win?.webContents.send('menu:setTheme', 'night') },
+                    { label: '咖啡 (Coffee)', click: () => win?.webContents.send('menu:setTheme', 'coffee') },
+                    { label: '昏暗 (Dim)', click: () => win?.webContents.send('menu:setTheme', 'dim') },
+                    { label: '北歐 (Nord)', click: () => win?.webContents.send('menu:setTheme', 'nord') },
+                    { label: '日落 (Sunset)', click: () => win?.webContents.send('menu:setTheme', 'sunset') },
+                  ],
+                },
+              ],
             },
+            { type: 'separator' },
             {
-              label: 'Left 3:1 Right',
-              accelerator: 'CmdOrCtrl+2',
+              label: 'Toggle Toolbar',
+              accelerator: 'CmdOrCtrl+Shift+T',
               click: () => {
                 if (win) {
-                  win.webContents.send('menu:splitRatio', '3:1');
-                }
-              },
-            },
-            {
-              label: 'Left 1:3 Right',
-              accelerator: 'CmdOrCtrl+3',
-              click: () => {
-                if (win) {
-                  win.webContents.send('menu:splitRatio', '1:3');
+                  win.webContents.send('menu:toggleToolbar');
                 }
               },
             },
           ],
         },
+        {
+          label: 'Layout',
+          submenu: [
+            {
+              label: currentViewMode === 'preview-only' ? 'Show Editor' : 'Hide Editor',
+              accelerator: 'CmdOrCtrl+Shift+E',
+              click: () => {
+                if (win) {
+                  win.webContents.send('menu:toggleEditor');
+                }
+              },
+            },
+            {
+              label: currentViewMode === 'editor-only' ? 'Show Preview' : 'Hide Preview',
+              accelerator: 'CmdOrCtrl+Shift+P',
+              click: () => {
+                if (win) {
+                  win.webContents.send('menu:togglePreview');
+                }
+              },
+            },
+            { type: 'separator' },
+            {
+              label: 'Split View',
+              submenu: [
+                {
+                  label: 'Left 1:1 Right',
+                  accelerator: 'CmdOrCtrl+1',
+                  click: () => {
+                    if (win) {
+                      win.webContents.send('menu:splitRatio', '1:1');
+                    }
+                  },
+                },
+                {
+                  label: 'Left 3:1 Right',
+                  accelerator: 'CmdOrCtrl+2',
+                  click: () => {
+                    if (win) {
+                      win.webContents.send('menu:splitRatio', '3:1');
+                    }
+                  },
+                },
+                {
+                  label: 'Left 1:3 Right',
+                  accelerator: 'CmdOrCtrl+3',
+                  click: () => {
+                    if (win) {
+                      win.webContents.send('menu:splitRatio', '1:3');
+                    }
+                  },
+                },
+              ],
+            },
+          ],
+        },
         { type: 'separator' },
         {
-          label: currentViewMode === 'preview-only' ? 'Show Editor' : 'Hide Editor',
-          accelerator: 'CmdOrCtrl+Shift+E',
-          click: () => {
-            if (win) {
-              win.webContents.send('menu:toggleEditor');
-            }
-          },
+          label: 'Zoom',
+          submenu: [
+            { role: 'resetZoom' },
+            { role: 'zoomIn' },
+            { role: 'zoomOut' },
+          ],
         },
-        {
-          label: currentViewMode === 'editor-only' ? 'Show Preview' : 'Hide Preview',
-          accelerator: 'CmdOrCtrl+Shift+P',
-          click: () => {
-            if (win) {
-              win.webContents.send('menu:togglePreview');
-            }
-          },
-        },
-        { type: 'separator' },
-        {
-          label: 'Toggle Toolbar',
-          accelerator: 'CmdOrCtrl+Shift+T',
-          click: () => {
-            if (win) {
-              win.webContents.send('menu:toggleToolbar');
-            }
-          },
-        },
-        { type: 'separator' },
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { role: 'toggleDevTools' },
-        { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
         { type: 'separator' },
         { role: 'togglefullscreen' },
+        { type: 'separator' },
+        {
+          label: 'Developer',
+          submenu: [
+            { role: 'reload' },
+            { role: 'forceReload' },
+            { role: 'toggleDevTools' },
+          ],
+        },
       ],
     },
   ];

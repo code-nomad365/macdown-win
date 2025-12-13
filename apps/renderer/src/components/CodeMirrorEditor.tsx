@@ -3,7 +3,7 @@ import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLine } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap, undo, redo } from '@codemirror/commands';
 import { markdown } from '@codemirror/lang-markdown';
-import { search, searchKeymap } from '@codemirror/search';
+import { search, searchKeymap, openSearchPanel } from '@codemirror/search';
 import { autocompletion, completionKeymap } from '@codemirror/autocomplete';
 import { foldGutter, foldKeymap } from '@codemirror/language';
 import { oneDark } from '@codemirror/theme-one-dark';
@@ -29,6 +29,7 @@ export interface CodeMirrorEditorRef {
   insertImage: () => void;
   indentLines: () => void;
   outdentLines: () => void;
+  openSearch: () => void;
 }
 
 // 淺色主題配置
@@ -234,6 +235,12 @@ const CodeMirrorEditor = forwardRef<CodeMirrorEditorRef, CodeMirrorEditorProps>(
             });
           }
           view.focus();
+        }
+      },
+      openSearch: () => {
+        if (viewRef.current) {
+          openSearchPanel(viewRef.current);
+          viewRef.current.focus();
         }
       },
     }));

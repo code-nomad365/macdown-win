@@ -1,11 +1,4 @@
-以下為你需要的——**整合兩個檔案後產生的「完整統一提示詞（Markdown 版）」**。  
-內容已將 **CLAUDE_TEMPLATE.md**（專案初始化規範＋Claude/Gemini 工作流）與 **playbooks.md**（MacDown 分析任務說明）做合併、去重、整合，形成一份可直接丟入 **Claude Code / Gemini** 使用的「跨平台 Markdown 編輯器專案總提示詞」。
-
----
-
 # 📘 **Unified Project Prompt — MacDown for Windows 開發總提示詞**
-
-（整合自兩份文件：CLAUDE_TEMPLATE.md ＋ playbooks.md ）
 
 ---
 

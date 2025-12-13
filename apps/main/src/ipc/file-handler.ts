@@ -1,4 +1,4 @@
-import { ipcMain, dialog } from 'electron'
+import { ipcMain, dialog, shell } from 'electron'
 import { readFile, writeFile } from 'fs/promises'
 
 let currentFilePath: string | null = null
@@ -97,6 +97,17 @@ export function registerFileHandlers() {
     } catch (error) {
       console.error('Failed to save file:', error)
       throw error
+    }
+  })
+
+  // 在檔案總管中顯示檔案
+  ipcMain.handle('file:showInFolder', async (_event, filePath: string) => {
+    try {
+      shell.showItemInFolder(filePath)
+      return { success: true }
+    } catch (error) {
+      console.error('Failed to show file in folder:', error)
+      return { success: false, error: String(error) }
     }
   })
 }

@@ -3,7 +3,7 @@ import { useMarkdown } from './hooks/useMarkdown';
 import CodeMirrorEditor, { CodeMirrorEditorRef } from './components/CodeMirrorEditor';
 import Toolbar from './components/Toolbar';
 import ZoomControl from './components/ZoomControl';
-import { useThemeStore } from './stores/themeStore';
+import { useThemeStore, THEME_NAMES, type Theme } from './stores/themeStore';
 
 const DEFAULT_CONTENT = '# Welcome to MacDown for Windows! 🚀\n\nA modern Markdown editor with **live preview** and **syntax highlighting**.\n\n## ✨ Features\n\n- ✅ Live Markdown preview\n- ✅ Syntax highlighting powered by Prism.js\n- ✅ File management (Ctrl+O / Ctrl+S)\n- ⏳ Multiple themes (coming soon)\n\n## 📝 Markdown Examples\n\n### Text Formatting\n\nYou can write **bold text**, *italic text*, and even ~~strikethrough~~.\n\nInline `code snippets` are also supported!\n\n### Code Blocks\n\n**JavaScript:**\n```javascript\nfunction fibonacci(n) {\n  if (n <= 1) return n;\n  return fibonacci(n - 1) + fibonacci(n - 2);\n}\n\nconsole.log(fibonacci(10)); // 55\n```\n\n**Python:**\n```python\ndef quick_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quick_sort(left) + middle + quick_sort(right)\n```\n\n**TypeScript:**\n```typescript\ninterface User {\n  id: number;\n  name: string;\n  email: string;\n}\n\nconst user: User = {\n  id: 1,\n  name: "Alice",\n  email: "alice@example.com"\n};\n```\n\n### Keyboard Shortcuts\n\n- **Ctrl+O** - Open file\n- **Ctrl+S** - Save file\n- **Ctrl+Shift+S** - Save as...\n\n---\n\n**Made with ❤️ using Electron + React + TypeScript**';
 
@@ -20,19 +20,34 @@ const App: React.FC = () => {
   const [previewZoom, setPreviewZoom] = useState<number>(80);
   const [showToolbar, setShowToolbar] = useState<boolean>(true);
 
-  const { theme, toggleTheme } = useThemeStore();
+  const { theme, setTheme } = useThemeStore();
   const editorRef = useRef<CodeMirrorEditorRef>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  // 將 daisyUI 主題映射為 CodeMirror 主題（只支援 light/dark）
+  const editorTheme: 'light' | 'dark' = ['dark', 'black', 'night', 'dracula', 'synthwave', 'halloween', 'forest', 'luxury', 'business', 'coffee', 'dim'].includes(theme) ? 'dark' : 'light';
 
   const html = useMarkdown(content);
 
   // 取得檔案名稱（用於標題顯示）
   const fileName = filePath ? filePath.split(/[\\/]/).pop() : 'Untitled';
 
+  // 在檔案總管中開啟檔案位置
+  const handleShowInFolder = useCallback(() => {
+    if (filePath && window.electronAPI) {
+      window.electronAPI.showInFolder(filePath);
+    }
+  }, [filePath]);
+
   // 追蹤內容是否已修改
   useEffect(() => {
     setIsDirty(content !== savedContent);
   }, [content, savedContent]);
+
+  // 將主題應用到 HTML 根元素
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   // 當 viewMode 改變時，通知主進程更新選單
   useEffect(() => {
@@ -264,6 +279,12 @@ const App: React.FC = () => {
     }
   }, [html]);
 
+  // 開啟搜尋面板
+  const handleFind = useCallback(() => {
+    console.log('🔍 Open search panel');
+    editorRef.current?.openSearch();
+  }, []);
+
   // 工具列格式化處理函式
   const handleBold = useCallback(() => {
     editorRef.current?.insertBold();
@@ -441,6 +462,13 @@ const App: React.FC = () => {
       console.log('🎯 menu:copyHTML event received');
       handleCopyHTML();
     });
+    const removeFindListener = window.electronAPI.onFind(() => {
+      console.log('🎯 menu:find event received');
+      handleFind();
+    });
+    const removeSetThemeListener = window.electronAPI.onSetTheme((themeName) => {
+      setTheme(themeName as Theme);
+    });
 
     console.log('✅ Menu event listeners registered successfully');
 
@@ -463,8 +491,10 @@ const App: React.FC = () => {
       removeOpenRecentListener();
       removeToggleToolbarListener();
       removeCopyHTMLListener();
+      removeFindListener();
+      removeSetThemeListener();
     };
-  }, [handleNew, handleClose, handleOpenFile, handleSaveFile, handleSaveFileAs, handleExportHTML, handleExportPDF, handleUndo, handleRedo, handleSplitRatio, handleToggleEditor, handleTogglePreview, handlePageSetup, handlePrint, handleOpenRecentFile, handleToggleToolbar, handleCopyHTML]);
+  }, [handleNew, handleClose, handleOpenFile, handleSaveFile, handleSaveFileAs, handleExportHTML, handleExportPDF, handleUndo, handleRedo, handleSplitRatio, handleToggleEditor, handleTogglePreview, handlePageSetup, handlePrint, handleOpenRecentFile, handleToggleToolbar, handleCopyHTML, handleFind, setTheme]);
 
   // 處理視窗關閉請求
   useEffect(() => {
@@ -504,31 +534,33 @@ const App: React.FC = () => {
   }, [isDirty, content]);
 
   return (
-    <div className={`flex h-screen w-full flex-col ${theme === 'dark' ? 'bg-slate-900 text-slate-100' : 'bg-white text-slate-900'}`}>
-      <header className={`flex h-12 shrink-0 items-center justify-between border-b px-4 ${theme === 'dark' ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'}`}>
-        <h1 className={`text-lg font-bold ${theme === 'dark' ? 'text-slate-100' : 'text-slate-800'}`}>MacDown</h1>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={toggleTheme}
-            className={`flex items-center gap-2 rounded px-3 py-1.5 text-sm transition-colors ${
-              theme === 'dark'
-                ? 'bg-slate-700 text-slate-200 hover:bg-slate-600'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-            }`}
-            title={`切換至${theme === 'dark' ? '淺色' : '深色'}主題`}
+    <div className="flex h-screen w-full flex-col bg-base-100 text-base-content">
+      <header className="navbar bg-base-200 border-b border-base-300 min-h-16 px-4">
+        <div className="navbar-start">
+          <h1 className="text-lg font-bold text-base-content">MacDown</h1>
+        </div>
+        <div className="navbar-end gap-4 items-center">
+          <div className="badge badge-primary gap-1.5 px-3 py-3">
+            <span className="text-xs">🎨</span>
+            <span className="text-xs whitespace-nowrap">{THEME_NAMES[theme]}</span>
+          </div>
+          <div
+            className={`flex items-center gap-2 max-w-md ${filePath ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+            onClick={filePath ? handleShowInFolder : undefined}
+            title={filePath ? `點擊開啟檔案位置\n${filePath}` : undefined}
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
-            <span>{theme === 'dark' ? '淺色' : '深色'}</span>
-          </button>
-          <span className={`text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
-            {isDirty && <span className="text-orange-500">● </span>}
-            {fileName}
-          </span>
+            {isDirty && <span className="text-warning text-sm">●</span>}
+            {filePath ? (
+              <span className="text-xs text-base-content/60 truncate">{filePath}</span>
+            ) : (
+              <span className="text-sm font-medium">Untitled</span>
+            )}
+          </div>
         </div>
       </header>
       <div className="flex flex-1 overflow-hidden">
         {viewMode !== 'preview-only' && (
-          <div className={`min-w-0 flex flex-col ${viewMode === 'editor-only' ? 'w-full' : `border-r ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'} ${
+          <div className={`min-w-0 flex flex-col ${viewMode === 'editor-only' ? 'w-full' : `border-r border-base-300 ${
             splitRatio === '1:1' ? 'w-1/2' : splitRatio === '3:1' ? 'w-3/4' : 'w-1/4'
           }`}`}>
             {showToolbar && (
@@ -544,7 +576,7 @@ const App: React.FC = () => {
                 onImage={handleImage}
                 onIndent={handleIndent}
                 onOutdent={handleOutdent}
-                theme={theme}
+                theme={editorTheme}
               />
             )}
             <div className="flex-1 overflow-hidden">
@@ -552,14 +584,14 @@ const App: React.FC = () => {
                 ref={editorRef}
                 value={content}
                 onChange={setContent}
-                theme={theme}
+                theme={editorTheme}
                 onScroll={handleEditorScroll}
               />
             </div>
           </div>
         )}
         {viewMode !== 'editor-only' && (
-          <div className={`min-w-0 flex flex-col ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-50'} ${
+          <div className={`min-w-0 flex flex-col bg-base-200 ${
             viewMode === 'preview-only' ? 'w-full' : (splitRatio === '1:1' ? 'w-1/2' : splitRatio === '3:1' ? 'w-1/4' : 'w-3/4')
           }`}>
             <ZoomControl
@@ -567,11 +599,11 @@ const App: React.FC = () => {
               onZoomIn={handleZoomIn}
               onZoomOut={handleZoomOut}
               onZoomReset={handleZoomReset}
-              theme={theme}
+              theme={editorTheme}
             />
             <div ref={previewRef} className="flex-1 overflow-auto p-8">
               <div
-                className={`prose max-w-none break-words ${theme === 'dark' ? 'prose-invert' : 'prose-slate'}`}
+                className={`prose max-w-none break-words ${editorTheme === 'dark' ? 'prose-invert' : 'prose-slate'}`}
                 style={{
                   transform: `scale(${previewZoom / 100})`,
                   transformOrigin: 'top left',
